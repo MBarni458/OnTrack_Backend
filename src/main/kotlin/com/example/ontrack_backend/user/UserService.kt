@@ -6,6 +6,7 @@ import com.example.ontrack_backend.repository.ActivityRepository
 import com.example.ontrack_backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.util.Optional
 
@@ -33,6 +34,17 @@ class UserService @Autowired public constructor(val userRepository: UserReposito
 
     fun addUser(userEntity: UserEntity){
         userRepository.save(userEntity)
+    }
+
+    @Transactional
+    fun updateUser(userEntity: UserEntity): UserEntity {
+        val existingUser = userRepository.findById(userEntity.id)
+        if (existingUser.isEmpty) {
+            throw IllegalArgumentException("User with id ${userEntity.id} does not exist")
+        }
+        val currentUser = existingUser.get()
+        currentUser.name = userEntity.name
+        return userRepository.save(currentUser)
     }
 
     fun deleteUser(id:Long){

@@ -18,6 +18,9 @@ class ActivitiesController @Autowired constructor(private final val activityServ
     @PostMapping(path = ["{userId}"])
     fun addActivity(@RequestBody activity:ActivityEntity, @PathVariable("userId") id:Long) = activityService.addActivity(activity, id)
 
+    @PatchMapping()
+    fun updateActivity(@RequestBody activity:ActivityEntity) = activityService.updateActivity(activity)
+
     @DeleteMapping(path = ["{activityId}"])
     fun deleteActivity(@PathVariable("activityId") id:Long) = activityService.deleteActivity(id)
 }

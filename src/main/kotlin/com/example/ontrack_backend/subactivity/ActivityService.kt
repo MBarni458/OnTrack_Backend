@@ -1,11 +1,8 @@
 package com.example.ontrack_backend.subactivity
 
-import com.example.ontrack_backend.model.ActivityEntity
 import com.example.ontrack_backend.model.SubActivityEntity
-import com.example.ontrack_backend.model.UserEntity
 import com.example.ontrack_backend.repository.ActivityRepository
 import com.example.ontrack_backend.repository.SubActivityRepository
-import com.example.ontrack_backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,6 +31,19 @@ class SubActivityService @Autowired constructor(
         subactivityEntity.activityId=activityId
 
         return subactivityRepository.save(subactivityEntity)
+    }
+
+    @Transactional
+    fun updateSubActivity(subActivityEntity: SubActivityEntity): SubActivityEntity {
+        val existingSubActivity = subactivityRepository.findById(subActivityEntity.id)
+        if (existingSubActivity.isEmpty) {
+            throw IllegalArgumentException("User with id ${subActivityEntity.id} does not exist")
+        }
+        val currentSubActivity = existingSubActivity.get()
+        currentSubActivity.name = subActivityEntity.name
+        currentSubActivity.calorie=subActivityEntity.calorie
+        currentSubActivity.type=subActivityEntity.type
+        return subactivityRepository.save(currentSubActivity)
     }
 
     fun deleteSubActivity(id: Long) {

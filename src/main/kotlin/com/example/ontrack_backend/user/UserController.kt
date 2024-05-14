@@ -31,6 +31,9 @@ class UserController @Autowired constructor(private final val userService: UserS
     @PostMapping("/new")
     fun addUser(@RequestBody user: UserEntity) = userService.addUser(user)
 
+    @PatchMapping()
+    fun updateUser(@RequestBody user: UserEntity) = userService.updateUser(user)
+
     @DeleteMapping(path = ["{userId}"])
     fun deleteUser(@PathVariable("userId") id:Long) = userService.deleteUser(id)
 }

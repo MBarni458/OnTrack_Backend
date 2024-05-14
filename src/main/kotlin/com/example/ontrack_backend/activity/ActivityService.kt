@@ -30,8 +30,20 @@ class ActivityService @Autowired constructor(
             throw IllegalArgumentException("The requested userId doesn't exist")
         }
         activityEntity.userId = userId
-
         return activityRepository.save(activityEntity)
+    }
+
+    @Transactional
+    fun updateActivity(activityEntity: ActivityEntity): ActivityEntity {
+        val existingActivity = activityRepository.findById(activityEntity.id)
+        if (existingActivity.isEmpty) {
+            throw IllegalArgumentException("Activity with id ${activityEntity.id} does not exist")
+        }
+        val currentActivity = existingActivity.get()
+        currentActivity.name = activityEntity.name
+        currentActivity.createdAt = activityEntity.createdAt
+        currentActivity.userId = activityEntity.userId
+        return activityRepository.save(currentActivity)
     }
 
     fun deleteActivity(id: Long) {
