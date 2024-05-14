@@ -12,7 +12,9 @@ class StatisticController @Autowired constructor(private final val userService: 
     @GetMapping("/top")
     fun getTopTen() = userService.getTopTen()
 
-    @GetMapping("/popularfood")
-    fun getPopularFood() = userService.getPopularFood()
+    @GetMapping(path=["/popular{type}"])
+    fun getPopularType(@PathVariable type:String) = userService.getPopularType(type)
 
+    @GetMapping(path=["/average"])
+    fun getAverageScore() = userService.getAverageScore()
 }

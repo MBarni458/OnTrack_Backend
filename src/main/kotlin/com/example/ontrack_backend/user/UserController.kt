@@ -19,6 +19,15 @@ class UserController @Autowired constructor(private final val userService: UserS
     @GetMapping(path=["/activities/{userId}"])
     fun getUserActivities(@PathVariable("userId") id:Long) = userService.getUserActivities(id)
 
+    @GetMapping(path=["/scores/weekly/{userId}"])
+    fun getUserWeeklyScore(@PathVariable("userId") id:Long) = userService.getUserWeeklyScores(id)
+
+    @GetMapping(path=["/scores/daily/{userId}"])
+    fun getUserDailyScore(@PathVariable("userId") id:Long) = userService.getUserDailyScores(id)
+
+    @GetMapping(path=["/place/daily/{userId}"])
+    fun getUserDailyPlace(@PathVariable("userId") id:Long) = userService.getUserDailyPlace(id)
+
     @PostMapping("/new")
     fun addUser(@RequestBody user: UserEntity) = userService.addUser(user)
 

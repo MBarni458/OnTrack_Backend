@@ -19,9 +19,6 @@ class SubActivityEntity(
     @Column(nullable = false)
     var calorie:Double=0.00,
 
-    @Column(nullable = false)
-    var createdAt:LocalDateTime = LocalDateTime.now(),
-
     @Column(nullable = true)
     var activityId: Long=0,
 )
