@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.util.Optional
+import java.util.*
 
 @Service
 class UserService @Autowired public constructor(val userRepository: UserRepository, val activityRepository: ActivityRepository) {
@@ -19,6 +19,10 @@ class UserService @Autowired public constructor(val userRepository: UserReposito
 
     fun getUser(id:Long) : Optional<UserEntity>{
         return userRepository.findById(id)
+    }
+
+    fun findUserByUsername(username: String): UserEntity? {
+        return userRepository.findByUsername(username)
     }
 
     fun getUserActivities(id: Long): Optional<List<ActivityEntity>> =
@@ -43,7 +47,7 @@ class UserService @Autowired public constructor(val userRepository: UserReposito
             throw IllegalArgumentException("User with id ${userEntity.id} does not exist")
         }
         val currentUser = existingUser.get()
-        currentUser.name = userEntity.name
+        currentUser.username = userEntity.username
         return userRepository.save(currentUser)
     }
 
@@ -52,5 +56,16 @@ class UserService @Autowired public constructor(val userRepository: UserReposito
         if (exists){
             userRepository.deleteById(id)
         }
+    }
+
+    fun registerUser(username:String, password:String) {
+        if (userRepository.findByUsername(username) != null) {
+            throw IllegalArgumentException("Username is already taken")
+        }
+        val newUser = UserEntity(
+            username = username,
+            password = password
+        )
+        userRepository.save(newUser)
     }
 }

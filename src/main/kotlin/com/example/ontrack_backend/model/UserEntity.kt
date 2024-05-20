@@ -1,30 +1,32 @@
 package com.example.ontrack_backend.model
 
 import jakarta.persistence.*
-import org.hibernate.type.descriptor.DateTimeUtils
-import java.sql.Date
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.*
-import kotlin.jvm.Transient
 import kotlin.math.max
 
 @Entity
 @Table(name = "users")
-class UserEntity constructor(
+open class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0,
 
     @Column(nullable = false)
-    var name: String = "",
+    var username: String,
+
+    @Column(nullable = false)
+    var password: String,
 
     @OneToMany
     @JoinColumn(name="userId")
     var activities: List<ActivityEntity> = mutableListOf()
 
 ) {
+    protected constructor() : this(0, "", "", mutableListOf())
+
     private fun isSameDay(date1: LocalDate, date2: LocalDate): Boolean{
         val pattern = "yyyy-MM-dd"
         val formatter = DateTimeFormatter.ofPattern(pattern)
@@ -33,7 +35,7 @@ class UserEntity constructor(
         return localDate1.isEqual(localDate2)
     }
 
-    fun isSameWeek(date1: LocalDate, date2: LocalDate,): Boolean {
+    fun isSameWeek(date1: LocalDate, date2: LocalDate): Boolean {
         val weekFields = WeekFields.of(Locale.getDefault())
         val week1 = date1.get(weekFields.weekOfWeekBasedYear())
         val week2 = date2.get(weekFields.weekOfWeekBasedYear())

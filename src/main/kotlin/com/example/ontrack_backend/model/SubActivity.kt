@@ -1,9 +1,6 @@
 package com.example.ontrack_backend.model
 
 import jakarta.persistence.*
-import java.time.LocalDateTime
-import kotlin.jvm.Transient
-
 @Entity
 @Table(name = "subactivity") // Specify the table name if different from class name
 class SubActivityEntity(

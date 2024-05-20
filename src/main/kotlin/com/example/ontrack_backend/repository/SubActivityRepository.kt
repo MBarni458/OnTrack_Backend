@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface SubActivityRepository: JpaRepository<SubActivityEntity, Long>{
-}
+interface SubActivityRepository: JpaRepository<SubActivityEntity, Long>

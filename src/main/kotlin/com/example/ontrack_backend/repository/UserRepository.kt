@@ -7,4 +7,6 @@ import java.util.*
 
 @Repository
 interface UserRepository: JpaRepository<UserEntity, Long>{
+
+    fun findByUsername(username: String): UserEntity?
 }
