@@ -1,5 +1,6 @@
 package com.example.ontrack_backend.user
 
+import com.example.ontrack_backend.auth.AuthController.AuthController.Companion.currentUserId
 import com.example.ontrack_backend.model.ActivityEntity
 import com.example.ontrack_backend.model.UserEntity
 import com.example.ontrack_backend.repository.ActivityRepository
@@ -13,28 +14,50 @@ import java.util.*
 @Service
 class UserService @Autowired public constructor(val userRepository: UserRepository, val activityRepository: ActivityRepository) {
 
-    fun getUsers(): List<UserEntity>{
+    fun getUsers(): List<UserEntity> {
         return userRepository.findAll()
     }
 
-    fun getUser(id:Long) : Optional<UserEntity>{
+    fun getUser(id: Long): Optional<UserEntity> {
         return userRepository.findById(id)
     }
 
     fun findUserByUsername(username: String): UserEntity? {
         return userRepository.findByUsername(username)
     }
+    fun getUserActivities(id: Long): Optional<List<ActivityEntity>> {
+        return if (id == currentUserId) {
+            activityRepository.findActivityEntitiesByUserId(id)
+        } else {
+            Optional.empty()
+        }
+    }
 
-    fun getUserActivities(id: Long): Optional<List<ActivityEntity>> =
-        activityRepository.findActivityEntitiesByUserId(id)
+    fun getUserWeeklyScores(id:Long): Int {
+        return if (id == currentUserId) {
+            userRepository.findById(id).get().getWeeklyPoint()
+        } else {
+            0
+        }
+    }
 
-    fun getUserWeeklyScores(id:Long) = userRepository.findById(id).get().getWeeklyPoint()
+    fun getUserDailyScores(id:Long):Int {
+        return if (id == currentUserId) {
+        userRepository.findById(id).get().getDailyPoint(LocalDate.now())
+        } else {
+            0
+        }
+    }
 
-    fun getUserDailyScores(id:Long) = userRepository.findById(id).get().getDailyPoint(LocalDate.now())
-
-    fun getUserDailyPlace(id:Long)  = userRepository.findAll().toList()
-        .sortedByDescending { it.getDailyPoint(LocalDate.now()) }
-        .indexOf(userRepository.findById(id).get())+1
+    fun getUserDailyPlace(id:Long):Int {
+        return if (id == currentUserId) {
+        userRepository.findAll().toList()
+            .sortedByDescending { it.getDailyPoint(LocalDate.now()) }
+            .indexOf(userRepository.findById(id).get()) + 1
+    } else {
+        0
+    }
+    }
 
     fun addUser(userEntity: UserEntity){
         userRepository.save(userEntity)
@@ -42,13 +65,17 @@ class UserService @Autowired public constructor(val userRepository: UserReposito
 
     @Transactional
     fun updateUser(userEntity: UserEntity): UserEntity {
-        val existingUser = userRepository.findById(userEntity.id)
-        if (existingUser.isEmpty) {
-            throw IllegalArgumentException("User with id ${userEntity.id} does not exist")
+        return if (currentUserId == userEntity.id) {
+            val existingUser = userRepository.findById(userEntity.id)
+            if (existingUser.isEmpty) {
+                throw IllegalArgumentException("User with id ${userEntity.id} does not exist")
+            }
+            val currentUser = existingUser.get()
+            currentUser.username = userEntity.username
+            userRepository.save(currentUser)
+        } else{
+            throw IllegalArgumentException("You are not authorized to edit this user")
         }
-        val currentUser = existingUser.get()
-        currentUser.username = userEntity.username
-        return userRepository.save(currentUser)
     }
 
     fun deleteUser(id:Long){

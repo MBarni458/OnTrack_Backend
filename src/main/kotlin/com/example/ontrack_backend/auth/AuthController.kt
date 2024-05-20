@@ -22,7 +22,7 @@ class AuthController {
         fun login(@RequestParam username: String, @RequestParam password: String): ResponseEntity<String> {
             val user = userService.findUserByUsername(username)
             return if (user != null && user.password == password) {
-                currentUserId = user.id
+               currentUserId = user.id
                 ResponseEntity.ok("Login successful")
             } else {
                 ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")
@@ -37,6 +37,11 @@ class AuthController {
             } catch (e: IllegalArgumentException) {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
             }
+        }
+
+        @PostMapping("/logout")
+        fun logout(){
+            currentUserId=null
         }
 
     }
