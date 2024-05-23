@@ -26,11 +26,6 @@ class UserController @Autowired constructor(private final val userService: UserS
     @GetMapping(path=["/place/daily/{userId}"])
     fun getUserDailyPlace(@PathVariable("userId") id:Long) = userService.getUserDailyPlace(id)
 
-
-    //Should be removed cause we have registration
-    @PostMapping()
-    fun addUser(@RequestBody user: UserEntity) = userService.addUser(user)
-
     @PatchMapping()
     fun updateUser(@RequestBody user: UserEntity) = userService.updateUser(user)
 

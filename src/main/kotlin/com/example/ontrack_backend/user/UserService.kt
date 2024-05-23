@@ -12,19 +12,31 @@ import java.time.LocalDate
 import java.util.*
 
 @Service
-class UserService @Autowired public constructor(val userRepository: UserRepository, val activityRepository: ActivityRepository) {
+class UserService @Autowired public constructor(
+    val userRepository: UserRepository,
+    val activityRepository: ActivityRepository
+) {
 
-    fun getUsers(): List<UserEntity> {
-        return userRepository.findAll()
-    }
+    data class UserSummary(
+        val id: Long,
+        val name: String,
+        val dailyPoints: Int,
+        val weeklyPoints: Int,
+        val dailyPlace: Int
+    )
 
-    fun getUser(id: Long): Optional<UserEntity> {
-        return userRepository.findById(id)
-    }
+    fun UserEntity.toUserSummary() =
+        UserSummary(id, username, getUserDailyScores(id), getUserWeeklyScores(id), getUserDailyPlace(id))
 
-    fun findUserByUsername(username: String): UserEntity? {
-        return userRepository.findByUsername(username)
-    }
+    fun getUsers(): List<UserSummary> = userRepository.findAll().map { it.toUserSummary() }
+
+
+    fun getUser(id: Long): Optional<UserEntity> = userRepository.findById(id)
+
+
+    fun findUserByUsername(username: String): UserEntity? = userRepository.findByUsername(username)
+
+
     fun getUserActivities(id: Long): Optional<List<ActivityEntity>> {
         return if (id == currentUserId) {
             activityRepository.findActivityEntitiesByUserId(id)
@@ -33,62 +45,35 @@ class UserService @Autowired public constructor(val userRepository: UserReposito
         }
     }
 
-    fun getUserWeeklyScores(id:Long): Int {
-        return if (id == currentUserId) {
-            userRepository.findById(id).get().getWeeklyPoint()
-        } else {
-            0
-        }
-    }
+    fun getUserWeeklyScores(id: Long) = userRepository.findById(id).get().getWeeklyPoint()
 
-    fun getUserDailyScores(id:Long):Int {
-        return if (id == currentUserId) {
-        userRepository.findById(id).get().getDailyPoint(LocalDate.now())
-        } else {
-            0
-        }
-    }
+    fun getUserDailyScores(id: Long) = userRepository.findById(id).get().getDailyPoint(LocalDate.now())
 
-    fun getUserDailyPlace(id:Long):Int {
-        return if (id == currentUserId) {
+    fun getUserDailyPlace(id: Long) =
         userRepository.findAll().toList()
             .sortedByDescending { it.getDailyPoint(LocalDate.now()) }
             .indexOf(userRepository.findById(id).get()) + 1
-    } else {
-        0
-    }
-    }
-
-    fun addUser(userEntity: UserEntity){
-        userRepository.save(userEntity)
-    }
 
     @Transactional
     fun updateUser(userEntity: UserEntity): UserEntity {
-        return if (currentUserId == userEntity.id) {
-            val existingUser = userRepository.findById(userEntity.id)
-            if (existingUser.isEmpty) {
-                throw IllegalArgumentException("User with id ${userEntity.id} does not exist")
-            }
-            val currentUser = existingUser.get()
-            currentUser.username = userEntity.username
-            userRepository.save(currentUser)
-        } else{
-            throw IllegalArgumentException("You are not authorized to edit this user")
+        require(currentUserId == userEntity.id) { "You are not authorized to edit this user" }
+        val existingUser = userRepository.findById(userEntity.id)
+        require(existingUser.isPresent) { "User with id ${userEntity.id} does not exist" }
+        require(userEntity.id == existingUser.get().id || userRepository.findByUsername(userEntity.username) == null) { "This username has already taken" }
+        val currentUser = existingUser.get().apply {
+            username = userEntity.username
+            password = userEntity.password
         }
+        return userRepository.save(currentUser)
     }
 
-    fun deleteUser(id:Long){
-        val exists = userRepository.existsById(id)
-        if (exists){
-            userRepository.deleteById(id)
-        }
+    fun deleteUser(id: Long) {
+        require(userRepository.existsById(id)) { "User with id $id does not exist" }
+        userRepository.deleteById(id)
     }
 
-    fun registerUser(username:String, password:String) {
-        if (userRepository.findByUsername(username) != null) {
-            throw IllegalArgumentException("Username is already taken")
-        }
+    fun registerUser(username: String, password: String) {
+        require(userRepository.findByUsername(username) == null) { "Username is already taken" }
         val newUser = UserEntity(
             username = username,
             password = password
