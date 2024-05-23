@@ -27,24 +27,24 @@ open class UserEntity(
 ) {
     protected constructor() : this(0, "", "", mutableListOf())
 
-    private fun isSameDay(date1: LocalDate, date2: LocalDate): Boolean{
+    private fun LocalDate.isSameDay(date: LocalDate): Boolean{
         val pattern = "yyyy-MM-dd"
         val formatter = DateTimeFormatter.ofPattern(pattern)
-        val localDate1 = LocalDate.parse(date1.toString(), formatter)
-        val localDate2 = LocalDate.parse(date2.toString(), formatter)
+        val localDate1 = LocalDate.parse(this.toString(), formatter)
+        val localDate2 = LocalDate.parse(date.toString(), formatter)
         return localDate1.isEqual(localDate2)
     }
 
-    fun isSameWeek(date1: LocalDate, date2: LocalDate): Boolean {
+    private fun LocalDate.isSameWeek(date: LocalDate): Boolean {
         val weekFields = WeekFields.of(Locale.getDefault())
-        val week1 = date1.get(weekFields.weekOfWeekBasedYear())
-        val week2 = date2.get(weekFields.weekOfWeekBasedYear())
-        return week1 == week2 && date1.year == date2.year
+        val week1 = this.get(weekFields.weekOfWeekBasedYear())
+        val week2 = date.get(weekFields.weekOfWeekBasedYear())
+        return week1 == week2 && this.year == date.year
     }
 
     fun getDailyPoint(date:LocalDate)
     = activities
-        .filter {isSameDay(it.createdAt.toLocalDate(),date) }
+        .filter {it.createdAt.toLocalDate().isSameDay(date) }
         .sumOf { it.getTotalCalories() }.toInt()
 
     fun getWeeklyPoint():Int {
@@ -52,10 +52,10 @@ open class UserEntity(
         var index=0
         var date= LocalDate.now().minusDays(6)
         do {
-           sum += if (isSameWeek(date, LocalDate.now())) getDailyPoint(date) else 0
+           sum += if (date.isSameWeek(LocalDate.now())) getDailyPoint(date) else 0
             index++
             date=date.plusDays(1)
-        } while (isSameWeek(date, LocalDate.now()) || index <7)
+        } while (date.isSameWeek(LocalDate.now()) || index <7)
         return sum
     }
 
