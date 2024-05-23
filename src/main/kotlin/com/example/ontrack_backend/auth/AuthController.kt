@@ -16,6 +16,10 @@ class AuthController {
 
         companion object {
             var currentUserId: Long? = null
+
+            fun Long?.isLoggedIn(id:Long): Boolean{
+                return this == id
+            }
         }
 
         @PostMapping("/login")

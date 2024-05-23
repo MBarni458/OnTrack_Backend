@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping(path = ["api/activities"])
-class ActivitiesController @Autowired constructor(private final val activityService: ActivityService) {
+class ActivitiesController @Autowired constructor(private val activityService: ActivityService) {
 
 
     @GetMapping()
