@@ -33,6 +33,7 @@ open class UserEntity(
         val localDate1 = LocalDate.parse(this.toString(), formatter)
         val localDate2 = LocalDate.parse(date.toString(), formatter)
         return localDate1.isEqual(localDate2)
+
     }
 
     private fun LocalDate.isSameWeek(date: LocalDate): Boolean {
