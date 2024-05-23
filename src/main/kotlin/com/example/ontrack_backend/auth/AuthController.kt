@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 class AuthController {
     @RestController
-    @RequestMapping("/auth")
+    @RequestMapping("api/auth")
     class AuthController @Autowired constructor(val userService: UserService) {
 
         companion object {
@@ -22,8 +22,11 @@ class AuthController {
             }
         }
 
+        data class UserData(val username: String, val password: String)
+
         @PostMapping("/login")
-        fun login(@RequestParam username: String, @RequestParam password: String): ResponseEntity<String> {
+        fun login(@RequestBody userData:UserData): ResponseEntity<String> {
+            val (username,password) = userData
             val user = userService.findUserByUsername(username)
             return if (user != null && user.password == password) {
                currentUserId = user.id
@@ -34,8 +37,9 @@ class AuthController {
         }
 
         @PostMapping("/register")
-        fun register(@RequestParam username: String, @RequestParam password: String): ResponseEntity<String> {
+        fun register(@RequestBody userData:UserData): ResponseEntity<String> {
             return try {
+                val (username,password) = userData
                 userService.registerUser(username,password)
                 ResponseEntity.ok("Registration successful")
             } catch (e: IllegalArgumentException) {
@@ -46,6 +50,7 @@ class AuthController {
         @PostMapping("/logout")
         fun logout(){
             currentUserId=null
+            ResponseEntity.ok("Logout successful")
         }
 
     }
