@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 import kotlin.math.min
 
 @Service
-class StatisticService @Autowired public constructor(
+class StatisticService @Autowired constructor(
     val userRepository: UserRepository,
     val subActivityRepository: SubActivityRepository
 ) {

@@ -21,13 +21,13 @@ open class UserEntity(
     var password: String,
 
     @OneToMany
-    @JoinColumn(name="userId")
+    @JoinColumn(name = "userId")
     var activities: List<ActivityEntity> = mutableListOf()
 
 ) {
     protected constructor() : this(0, "", "", mutableListOf())
 
-    private fun LocalDate.isSameDay(date: LocalDate): Boolean{
+    private fun LocalDate.isSameDay(date: LocalDate): Boolean {
         val pattern = "yyyy-MM-dd"
         val formatter = DateTimeFormatter.ofPattern(pattern)
         val localDate1 = LocalDate.parse(this.toString(), formatter)
@@ -43,22 +43,21 @@ open class UserEntity(
         return week1 == week2 && this.year == date.year
     }
 
-    fun getDailyPoint(date:LocalDate)
-    = activities
-        .filter {it.createdAt.toLocalDate().isSameDay(date) }
+    fun getDailyPoint(date: LocalDate) = activities
+        .filter { it.createdAt.toLocalDate().isSameDay(date) }
         .sumOf { it.getTotalCalories() }.toInt()
 
-    fun getWeeklyPoint():Int {
-        var sum=0
-        var index=0
-        var date= LocalDate.now().minusDays(6)
+    fun getWeeklyPoint(): Int {
+        var sum = 0
+        var index = 0
+        var date = LocalDate.now().minusDays(6)
         do {
-           sum += if (date.isSameWeek(LocalDate.now())) getDailyPoint(date) else 0
+            sum += if (date.isSameWeek(LocalDate.now())) getDailyPoint(date) else 0
             index++
-            date=date.plusDays(1)
-        } while (date.isSameWeek(LocalDate.now()) || index <7)
+            date = date.plusDays(1)
+        } while (date.isSameWeek(LocalDate.now()) || index < 7)
         return sum
     }
 
-    fun getPoints()=max(0, activities.sumOf { it.getTotalCalories() }.toInt())
+    fun getPoints() = max(0, activities.sumOf { 2000 - it.getConsumedCalories() + 2 * it.getBurnedCalories() }.toInt())
 }
